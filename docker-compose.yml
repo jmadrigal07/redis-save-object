@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+
+  redis-cache:
+    image: 'redis:4-alpine'
+    container_name: redis-cache
+    command:
+        redis-server --requirepass ${REDIS_PASS}
+    expose:
+        - 6379
+
+  app:
+      build: ./
+      volumes:
+          - ./:/var/www/app
+      links:
+          - redis-cache
+      ports:
+          - ${PORT}:${PORT}
+      environment:
+          - REDIS_URL=redis://redis:${REDIS_PASS}@redis-cache
+          - NODE_ENV=${NODE_ENV}
+          - PORT=${PORT}
